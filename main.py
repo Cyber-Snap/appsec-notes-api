@@ -114,3 +114,14 @@ def create_note(text: str, user: Dict = Depends(get_current_user)):
 @app.get("/admin")
 def admin_panel(admin: Dict = Depends(require_admin)):
     return {"message": f"Welcome, admin {admin['username']}!", "users": list(users_db.keys())}
+
+
+@app.get("/notes/{note_id}")
+def get_note(note_id: int, user: Dict = Depends(get_current_user)):
+    # search all notes regardless of owner
+    for owner in notes_db:
+        for note in notes_db[owner]:
+            if note["id"] == note_id:
+                return note
+
+    raise HTTPException(status_code=404, detail="Note not found")
